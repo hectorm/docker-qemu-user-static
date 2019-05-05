@@ -25,7 +25,7 @@ IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_NAME).amd64.tgz
 IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_NAME).arm32v7.tgz
 IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_NAME).arm64v8.tgz
 
-IMAGE_DOCKERFILE := ./Dockerfile
+DOCKERFILE := ./Dockerfile
 
 ##################################################
 ## "all" target
@@ -41,9 +41,9 @@ all: save-native-image
 .PHONY: build-native-image
 build-native-image:
 	'$(DOCKER)' build \
-		--tag '$(IMAGE_LATEST_TAG)' \
 		--tag '$(IMAGE_VERSION_TAG)' \
-		--file '$(IMAGE_DOCKERFILE)' ./
+		--tag '$(IMAGE_LATEST_TAG)' \
+		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-cross-images
 build-cross-images: build-amd64-image build-arm32v7-image build-arm64v8-image
@@ -51,23 +51,26 @@ build-cross-images: build-amd64-image build-arm32v7-image build-arm64v8-image
 .PHONY: build-amd64-image
 build-amd64-image:
 	'$(DOCKER)' build \
+		--tag '$(IMAGE_LATEST_TAG)-amd64' \
 		--tag '$(IMAGE_VERSION_TAG)-amd64' \
 		--build-arg TARGET_ARCH=amd64 \
-		--file '$(IMAGE_DOCKERFILE)' ./
+		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm32v7-image
 build-arm32v7-image:
 	'$(DOCKER)' build \
+		--tag '$(IMAGE_LATEST_TAG)-arm32v7' \
 		--tag '$(IMAGE_VERSION_TAG)-arm32v7' \
 		--build-arg TARGET_ARCH=armhf \
-		--file '$(IMAGE_DOCKERFILE)' ./
+		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm64v8-image
 build-arm64v8-image:
 	'$(DOCKER)' build \
+		--tag '$(IMAGE_LATEST_TAG)-arm64v8' \
 		--tag '$(IMAGE_VERSION_TAG)-arm64v8' \
 		--build-arg TARGET_ARCH=arm64 \
-		--file '$(IMAGE_DOCKERFILE)' ./
+		--file '$(DOCKERFILE)' ./
 
 ##################################################
 ## "save-*" targets
@@ -131,14 +134,17 @@ load-cross-images: load-amd64-image load-arm32v7-image load-arm64v8-image
 .PHONY: load-amd64-image
 load-amd64-image:
 	$(call load_image,$(IMAGE_AMD64_TARBALL))
+	$(call tag_image,$(IMAGE_VERSION_TAG)-amd64,$(IMAGE_LATEST_TAG)-amd64)
 
 .PHONY: load-arm32v7-image
 load-arm32v7-image:
 	$(call load_image,$(IMAGE_ARM32V7_TARBALL))
+	$(call tag_image,$(IMAGE_VERSION_TAG)-arm32v7,$(IMAGE_LATEST_TAG)-arm32v7)
 
 .PHONY: load-arm64v8-image
 load-arm64v8-image:
 	$(call load_image,$(IMAGE_ARM64V8_TARBALL))
+	$(call tag_image,$(IMAGE_VERSION_TAG)-arm64v8,$(IMAGE_LATEST_TAG)-arm64v8)
 
 ##################################################
 ## "push-*" targets
@@ -166,18 +172,21 @@ push-cross-images: push-amd64-image push-arm32v7-image push-arm64v8-image
 .PHONY: push-amd64-image
 push-amd64-image:
 	$(call push_image,$(IMAGE_VERSION_TAG)-amd64)
+	$(call push_image,$(IMAGE_LATEST_TAG)-amd64)
 
 .PHONY: push-arm32v7-image
 push-arm32v7-image:
 	$(call push_image,$(IMAGE_VERSION_TAG)-arm32v7)
+	$(call push_image,$(IMAGE_LATEST_TAG)-arm32v7)
 
 .PHONY: push-arm64v8-image
 push-arm64v8-image:
 	$(call push_image,$(IMAGE_VERSION_TAG)-arm64v8)
+	$(call push_image,$(IMAGE_LATEST_TAG)-arm64v8)
 
 push-cross-manifest:
 	$(call push_cross_manifest,$(IMAGE_VERSION_TAG),$(IMAGE_VERSION_TAG))
-	$(call push_cross_manifest,$(IMAGE_LATEST_TAG),$(IMAGE_VERSION_TAG))
+	$(call push_cross_manifest,$(IMAGE_LATEST_TAG),$(IMAGE_LATEST_TAG))
 
 ##################################################
 ## "binfmt-*" targets
