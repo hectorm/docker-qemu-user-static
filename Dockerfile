@@ -2,7 +2,7 @@
 ## "build" stage
 ##################################################
 
-FROM debian:sid AS build
+FROM docker.io/debian:sid AS build
 
 ARG TARGET_ARCH=
 RUN TARGET_ARCH="${TARGET_ARCH:-$(dpkg --print-architecture)}" \
