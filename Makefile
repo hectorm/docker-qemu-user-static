@@ -20,10 +20,10 @@ ifneq ($(wildcard $(VERSION_FILE)),)
 	IMAGE_VERSION := $(shell cat '$(VERSION_FILE)')
 endif
 
-IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).tgz
-IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.tgz
-IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.tgz
-IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.tgz
+IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).txz
+IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.txz
+IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.txz
+IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.txz
 
 ##################################################
 ## "all" target
@@ -49,24 +49,24 @@ build-cross-images: build-amd64-image build-arm32v7-image build-arm64v8-image
 .PHONY: build-amd64-image
 build-amd64-image:
 	'$(DOCKER)' build \
-		--tag '$(IMAGE_NAME):latest-amd64' \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-amd64' \
+		--tag '$(IMAGE_NAME):latest-amd64' \
 		--build-arg TARGET_ARCH=amd64 \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm32v7-image
 build-arm32v7-image:
 	'$(DOCKER)' build \
-		--tag '$(IMAGE_NAME):latest-arm32v7' \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7' \
+		--tag '$(IMAGE_NAME):latest-arm32v7' \
 		--build-arg TARGET_ARCH=armhf \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm64v8-image
 build-arm64v8-image:
 	'$(DOCKER)' build \
-		--tag '$(IMAGE_NAME):latest-arm64v8' \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8' \
+		--tag '$(IMAGE_NAME):latest-arm64v8' \
 		--build-arg TARGET_ARCH=arm64 \
 		--file '$(DOCKERFILE)' ./
 
@@ -75,7 +75,7 @@ build-arm64v8-image:
 ##################################################
 
 define save_image
-	'$(DOCKER)' save '$(1)' | gzip -n > '$(2)'
+	'$(DOCKER)' save '$(1)' | xz -T0 > '$(2)'
 endef
 
 .PHONY: save-native-image
@@ -206,9 +206,9 @@ binfmt-reset:
 version:
 	@if printf -- '%s' '$(IMAGE_VERSION)' | grep -q '^v[0-9]\{1,\}$$'; then \
 		NEW_IMAGE_VERSION=$$(awk -v 'v=$(IMAGE_VERSION)' 'BEGIN {printf "v%.0f", substr(v,2)+1}'); \
-		printf -- '%s\n' "$${NEW_IMAGE_VERSION}" > '$(VERSION_FILE)'; \
-		'$(GIT)' add '$(VERSION_FILE)'; '$(GIT)' commit -m "$${NEW_IMAGE_VERSION}"; \
-		'$(GIT)' tag -a "$${NEW_IMAGE_VERSION}" -m "$${NEW_IMAGE_VERSION}"; \
+		printf -- '%s\n' "$${NEW_IMAGE_VERSION:?}" > '$(VERSION_FILE)'; \
+		'$(GIT)' add '$(VERSION_FILE)'; '$(GIT)' commit -m "$${NEW_IMAGE_VERSION:?}"; \
+		'$(GIT)' tag -a "$${NEW_IMAGE_VERSION:?}" -m "$${NEW_IMAGE_VERSION:?}"; \
 	else \
 		>&2 printf -- 'Malformed version string: %s\n' '$(IMAGE_VERSION)'; \
 		exit 1; \
