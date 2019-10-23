@@ -51,7 +51,8 @@ build-amd64-image:
 	'$(DOCKER)' build \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-amd64' \
 		--tag '$(IMAGE_NAME):latest-amd64' \
-		--build-arg TARGET_ARCH=amd64 \
+		--build-arg CROSS_PREFIX=x86_64-linux-gnu- \
+		--build-arg DPKG_ARCH=amd64 \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm32v7-image
@@ -59,7 +60,8 @@ build-arm32v7-image:
 	'$(DOCKER)' build \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7' \
 		--tag '$(IMAGE_NAME):latest-arm32v7' \
-		--build-arg TARGET_ARCH=armhf \
+		--build-arg CROSS_PREFIX=arm-linux-gnueabihf- \
+		--build-arg DPKG_ARCH=armhf \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm64v8-image
@@ -67,7 +69,8 @@ build-arm64v8-image:
 	'$(DOCKER)' build \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8' \
 		--tag '$(IMAGE_NAME):latest-arm64v8' \
-		--build-arg TARGET_ARCH=arm64 \
+		--build-arg CROSS_PREFIX=aarch64-linux-gnu- \
+		--build-arg DPKG_ARCH=arm64 \
 		--file '$(DOCKERFILE)' ./
 
 ##################################################
