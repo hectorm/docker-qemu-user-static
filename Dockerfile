@@ -56,6 +56,10 @@ RUN for b in ./*-linux-user/qemu-*-static; do file -b "$b" | grep -q 'statically
 ## "qemu-user-static" stage
 ##################################################
 
-FROM scratch AS qemu-user-static
+FROM busybox AS qemu-user-static
 
-COPY --from=build /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
+COPY --from=build --chown=root:root /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
+COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/
+COPY --chown=root:root scripts/bin/ /usr/bin/
+
+ENTRYPOINT ["/usr/bin/qemu-binfmt-register.sh"]
