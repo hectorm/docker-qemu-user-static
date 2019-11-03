@@ -75,6 +75,19 @@ build:images:arm32v7:
     paths:
       - "./dist/"
 
+build:images:ppc64le:
+  stage: "build:images"
+  only:
+    - *regex_version
+  before_script:
+    - *cmd_install_build_packages
+  script:
+    - "make build-ppc64le-image save-ppc64le-image"
+  artifacts:
+    expire_in: "1 week"
+    paths:
+      - "./dist/"
+
 build:images:s390x:
   stage: "build:images"
   only:
@@ -124,6 +137,18 @@ push:images:arm32v7:
   script:
     - "make load-arm32v7-image push-arm32v7-image"
 
+push:images:ppc64le:
+  stage: "push:images"
+  dependencies:
+    - "build:images:ppc64le"
+  only:
+    - *regex_version
+  before_script:
+    - *cmd_install_push_packages
+    - *cmd_docker_login_registry
+  script:
+    - "make load-ppc64le-image push-ppc64le-image"
+
 push:images:s390x:
   stage: "push:images"
   dependencies:
@@ -142,6 +167,7 @@ push:manifests:cross:
     - "push:images:amd64"
     - "push:images:arm64v8"
     - "push:images:arm32v7"
+    - "push:images:ppc64le"
     - "push:images:s390x"
   only:
     - *regex_version
