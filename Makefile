@@ -218,18 +218,6 @@ push-cross-manifest:
 	$(call push_cross_manifest,$(IMAGE_NAME):latest,$(IMAGE_NAME):latest)
 
 ##################################################
-## "binfmt-*" targets
-##################################################
-
-.PHONY: binfmt-register
-binfmt-register:
-	'$(DOCKER)' run --rm --privileged docker.io/multiarch/qemu-user-static:register
-
-.PHONY: binfmt-reset
-binfmt-reset:
-	'$(DOCKER)' run --rm --privileged docker.io/multiarch/qemu-user-static:register --reset
-
-##################################################
 ## "version" target
 ##################################################
 

@@ -43,7 +43,6 @@ build:images:amd64:
   before_script:
     - *cmd_install_build_packages
   script:
-    - "make binfmt-register"
     - "make build-amd64-image save-amd64-image"
   artifacts:
     expire_in: "1 week"
@@ -57,7 +56,6 @@ build:images:arm64v8:
   before_script:
     - *cmd_install_build_packages
   script:
-    - "make binfmt-register"
     - "make build-arm64v8-image save-arm64v8-image"
   artifacts:
     expire_in: "1 week"
@@ -71,7 +69,6 @@ build:images:arm32v7:
   before_script:
     - *cmd_install_build_packages
   script:
-    - "make binfmt-register"
     - "make build-arm32v7-image save-arm32v7-image"
   artifacts:
     expire_in: "1 week"
@@ -85,7 +82,6 @@ build:images:s390x:
   before_script:
     - *cmd_install_build_packages
   script:
-    - "make binfmt-register"
     - "make build-s390x-image save-s390x-image"
   artifacts:
     expire_in: "1 week"
