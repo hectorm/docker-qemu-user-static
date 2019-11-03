@@ -50,6 +50,20 @@ build:images:amd64:
     paths:
       - "./dist/"
 
+build:images:arm64v8:
+  stage: "build:images"
+  only:
+    - *regex_version
+  before_script:
+    - *cmd_install_build_packages
+  script:
+    - "make binfmt-register"
+    - "make build-arm64v8-image save-arm64v8-image"
+  artifacts:
+    expire_in: "1 week"
+    paths:
+      - "./dist/"
+
 build:images:arm32v7:
   stage: "build:images"
   only:
@@ -64,7 +78,7 @@ build:images:arm32v7:
     paths:
       - "./dist/"
 
-build:images:arm64v8:
+build:images:s390x:
   stage: "build:images"
   only:
     - *regex_version
@@ -72,7 +86,7 @@ build:images:arm64v8:
     - *cmd_install_build_packages
   script:
     - "make binfmt-register"
-    - "make build-arm64v8-image save-arm64v8-image"
+    - "make build-s390x-image save-s390x-image"
   artifacts:
     expire_in: "1 week"
     paths:
@@ -90,18 +104,6 @@ push:images:amd64:
   script:
     - "make load-amd64-image push-amd64-image"
 
-push:images:arm32v7:
-  stage: "push:images"
-  dependencies:
-    - "build:images:arm32v7"
-  only:
-    - *regex_version
-  before_script:
-    - *cmd_install_push_packages
-    - *cmd_docker_login_registry
-  script:
-    - "make load-arm32v7-image push-arm32v7-image"
-
 push:images:arm64v8:
   stage: "push:images"
   dependencies:
@@ -114,12 +116,37 @@ push:images:arm64v8:
   script:
     - "make load-arm64v8-image push-arm64v8-image"
 
+push:images:arm32v7:
+  stage: "push:images"
+  dependencies:
+    - "build:images:arm32v7"
+  only:
+    - *regex_version
+  before_script:
+    - *cmd_install_push_packages
+    - *cmd_docker_login_registry
+  script:
+    - "make load-arm32v7-image push-arm32v7-image"
+
+push:images:s390x:
+  stage: "push:images"
+  dependencies:
+    - "build:images:s390x"
+  only:
+    - *regex_version
+  before_script:
+    - *cmd_install_push_packages
+    - *cmd_docker_login_registry
+  script:
+    - "make load-s390x-image push-s390x-image"
+
 push:manifests:cross:
   stage: "push:manifests"
   dependencies:
     - "push:images:amd64"
-    - "push:images:arm32v7"
     - "push:images:arm64v8"
+    - "push:images:arm32v7"
+    - "push:images:s390x"
   only:
     - *regex_version
   variables:
