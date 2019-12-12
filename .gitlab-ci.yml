@@ -41,7 +41,6 @@ build:images:native:
   before_script:
     - *cmd_install_build_packages
   script:
-    - 'make binfmt-register'
     - 'make "build-${ARCH:?}-image" "save-${ARCH:?}-image"'
   artifacts:
     expire_in: '1 week'
