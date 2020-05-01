@@ -20,7 +20,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		python3
 
 # Clone QEMU
-ARG QEMU_TREEISH=v4.2.0
+ARG QEMU_TREEISH=v5.0.0
 ARG QEMU_REMOTE=https://github.com/qemu/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
@@ -50,7 +50,7 @@ RUN ../configure \
 RUN make -j"$(nproc)"
 RUN for b in ./*-linux-user/qemu-*; do mv "$b" "$b"-static; done
 RUN for b in ./*-linux-user/qemu-*-static; do "${CROSS_PREFIX?}"strip -s "$b"; file "$b"; done
-RUN for b in ./*-linux-user/qemu-*-static; do file -b "$b" | grep -q 'statically linked'; done
+RUN for b in ./*-linux-user/qemu-*-static; do test -z "$(readelf -x .interp "$b" 2>/dev/null)"; done
 
 ##################################################
 ## "qemu-user-static" stage
