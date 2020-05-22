@@ -20,6 +20,8 @@ ifneq ($(wildcard $(VERSION_FILE)),)
 	IMAGE_VERSION := $(shell cat '$(VERSION_FILE)')
 endif
 
+IMAGE_BUILD_OPTS :=
+
 IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).txz
 IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.txz
 IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.txz
@@ -41,7 +43,7 @@ all: save-native-image
 
 .PHONY: build-native-image
 build-native-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)' \
 		--tag '$(IMAGE_NAME):latest' \
 		--file '$(DOCKERFILE)' ./
@@ -51,7 +53,7 @@ build-cross-images: build-amd64-image build-arm64v8-image build-arm32v7-image bu
 
 .PHONY: build-amd64-image
 build-amd64-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-amd64' \
 		--tag '$(IMAGE_NAME):latest-amd64' \
 		--build-arg CROSS_PREFIX=x86_64-linux-gnu- \
@@ -60,7 +62,7 @@ build-amd64-image:
 
 .PHONY: build-arm64v8-image
 build-arm64v8-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8' \
 		--tag '$(IMAGE_NAME):latest-arm64v8' \
 		--build-arg CROSS_PREFIX=aarch64-linux-gnu- \
@@ -69,7 +71,7 @@ build-arm64v8-image:
 
 .PHONY: build-arm32v7-image
 build-arm32v7-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7' \
 		--tag '$(IMAGE_NAME):latest-arm32v7' \
 		--build-arg CROSS_PREFIX=arm-linux-gnueabihf- \
@@ -78,7 +80,7 @@ build-arm32v7-image:
 
 .PHONY: build-arm32v6-image
 build-arm32v6-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6' \
 		--tag '$(IMAGE_NAME):latest-arm32v6' \
 		--build-arg CROSS_PREFIX=arm-linux-gnueabi- \
@@ -87,7 +89,7 @@ build-arm32v6-image:
 
 .PHONY: build-ppc64le-image
 build-ppc64le-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-ppc64le' \
 		--tag '$(IMAGE_NAME):latest-ppc64le' \
 		--build-arg CROSS_PREFIX=powerpc64le-linux-gnu- \
@@ -96,7 +98,7 @@ build-ppc64le-image:
 
 .PHONY: build-s390x-image
 build-s390x-image:
-	'$(DOCKER)' build \
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-s390x' \
 		--tag '$(IMAGE_NAME):latest-s390x' \
 		--build-arg CROSS_PREFIX=s390x-linux-gnu- \
