@@ -60,6 +60,6 @@ FROM docker.io/alpine:3 AS qemu-user-static
 
 COPY --from=build --chown=root:root /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
 COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/
-COPY --chown=root:root scripts/bin/ /usr/bin/
+COPY --chown=root:root ./scripts/bin/ /usr/bin/
 
 ENTRYPOINT ["/usr/bin/qemu-binfmt-register.sh"]
