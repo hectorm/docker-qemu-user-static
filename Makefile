@@ -248,7 +248,7 @@ endef
 define push_cross_manifest
 	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-i386' '$(2)-arm64v8' '$(2)-arm32v7' '$(2)-arm32v6' '$(2)-ppc64le' '$(2)-s390x'
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-amd64' --os linux --arch amd64
-	'$(DOCKER)' manifest annotate '$(1)' '$(2)-i386' --os linux --arch i386
+	'$(DOCKER)' manifest annotate '$(1)' '$(2)-i386' --os linux --arch 386
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm64v8' --os linux --arch arm64 --variant v8
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v7' --os linux --arch arm --variant v7
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v6' --os linux --arch arm --variant v6
