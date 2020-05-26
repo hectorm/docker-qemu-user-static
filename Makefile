@@ -24,6 +24,7 @@ IMAGE_BUILD_OPTS :=
 
 IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).txz
 IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.txz
+IMAGE_I386_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).i386.txz
 IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.txz
 IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.txz
 IMAGE_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v6.txz
@@ -49,7 +50,7 @@ build-native-image:
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-cross-images
-build-cross-images: build-amd64-image build-arm64v8-image build-arm32v7-image build-arm32v6-image build-ppc64le-image build-s390x-image
+build-cross-images: build-amd64-image build-i386-image build-arm64v8-image build-arm32v7-image build-arm32v6-image build-ppc64le-image build-s390x-image
 
 .PHONY: build-amd64-image
 build-amd64-image:
@@ -58,6 +59,15 @@ build-amd64-image:
 		--tag '$(IMAGE_NAME):latest-amd64' \
 		--build-arg CROSS_PREFIX=x86_64-linux-gnu- \
 		--build-arg DPKG_ARCH=amd64 \
+		--file '$(DOCKERFILE)' ./
+
+.PHONY: build-i386-image
+build-i386-image:
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
+		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-i386' \
+		--tag '$(IMAGE_NAME):latest-i386' \
+		--build-arg CROSS_PREFIX=i686-linux-gnu- \
+		--build-arg DPKG_ARCH=i386 \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-arm64v8-image
@@ -121,7 +131,7 @@ $(IMAGE_NATIVE_TARBALL): build-native-image
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION),$@)
 
 .PHONY: save-cross-images
-save-cross-images: save-amd64-image save-arm64v8-image save-arm32v7-image save-arm32v6-image save-ppc64le-image save-s390x-image
+save-cross-images: save-amd64-image save-i386-image save-arm64v8-image save-arm32v7-image save-arm32v6-image save-ppc64le-image save-s390x-image
 
 .PHONY: save-amd64-image
 save-amd64-image: $(IMAGE_AMD64_TARBALL)
@@ -129,6 +139,13 @@ save-amd64-image: $(IMAGE_AMD64_TARBALL)
 $(IMAGE_AMD64_TARBALL): build-amd64-image
 	mkdir -p '$(DISTDIR)'
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-amd64,$@)
+
+.PHONY: save-i386-image
+save-i386-image: $(IMAGE_I386_TARBALL)
+
+$(IMAGE_I386_TARBALL): build-i386-image
+	mkdir -p '$(DISTDIR)'
+	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-i386,$@)
 
 .PHONY: save-arm64v8-image
 save-arm64v8-image: $(IMAGE_ARM64V8_TARBALL)
@@ -183,12 +200,17 @@ load-native-image:
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION),$(IMAGE_NAME):latest)
 
 .PHONY: load-cross-images
-load-cross-images: load-amd64-image load-arm64v8-image load-arm32v7-image load-arm32v6-image load-ppc64le-image load-s390x-image
+load-cross-images: load-amd64-image load-i386-image load-arm64v8-image load-arm32v7-image load-arm32v6-image load-ppc64le-image load-s390x-image
 
 .PHONY: load-amd64-image
 load-amd64-image:
 	$(call load_image,$(IMAGE_AMD64_TARBALL))
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-amd64,$(IMAGE_NAME):latest-amd64)
+
+.PHONY: load-i386-image
+load-i386-image:
+	$(call load_image,$(IMAGE_I386_TARBALL))
+	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-i386,$(IMAGE_NAME):latest-i386)
 
 .PHONY: load-arm64v8-image
 load-arm64v8-image:
@@ -224,8 +246,9 @@ define push_image
 endef
 
 define push_cross_manifest
-	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-arm64v8' '$(2)-arm32v7' '$(2)-arm32v6' '$(2)-ppc64le' '$(2)-s390x'
+	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-i386' '$(2)-arm64v8' '$(2)-arm32v7' '$(2)-arm32v6' '$(2)-ppc64le' '$(2)-s390x'
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-amd64' --os linux --arch amd64
+	'$(DOCKER)' manifest annotate '$(1)' '$(2)-i386' --os linux --arch i386
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm64v8' --os linux --arch arm64 --variant v8
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v7' --os linux --arch arm --variant v7
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v6' --os linux --arch arm --variant v6
@@ -239,12 +262,17 @@ push-native-image:
 	@printf '%s\n' 'Unimplemented'
 
 .PHONY: push-cross-images
-push-cross-images: push-amd64-image push-arm64v8-image push-arm32v7-image push-arm32v6-image push-ppc64le-image push-s390x-image
+push-cross-images: push-amd64-image push-i386-image push-arm64v8-image push-arm32v7-image push-arm32v6-image push-ppc64le-image push-s390x-image
 
 .PHONY: push-amd64-image
 push-amd64-image:
 	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-amd64)
 	$(call push_image,$(IMAGE_NAME):latest-amd64)
+
+.PHONY: push-i386-image
+push-i386-image:
+	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-i386)
+	$(call push_image,$(IMAGE_NAME):latest-i386)
 
 .PHONY: push-arm64v8-image
 push-arm64v8-image:
@@ -297,5 +325,8 @@ version:
 
 .PHONY: clean
 clean:
-	rm -f '$(IMAGE_NATIVE_TARBALL)' '$(IMAGE_AMD64_TARBALL)' '$(IMAGE_ARM64V8_TARBALL)' '$(IMAGE_ARM32V7_TARBALL)' '$(IMAGE_ARM32V6_TARBALL)' '$(IMAGE_PPC64LE_TARBALL)' '$(IMAGE_S390X_TARBALL)'
+	rm -f '$(IMAGE_NATIVE_TARBALL)'
+	rm -f '$(IMAGE_AMD64_TARBALL)' '$(IMAGE_I386_TARBALL)'
+	rm -f '$(IMAGE_ARM64V8_TARBALL)' '$(IMAGE_ARM32V7_TARBALL)' '$(IMAGE_ARM32V6_TARBALL)'
+	rm -f '$(IMAGE_PPC64LE_TARBALL)' '$(IMAGE_S390X_TARBALL)'
 	if [ -d '$(DISTDIR)' ] && [ -z "$$(ls -A '$(DISTDIR)')" ]; then rmdir '$(DISTDIR)'; fi
