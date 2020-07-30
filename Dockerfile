@@ -20,7 +20,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		python3
 
 # Clone QEMU
-ARG QEMU_TREEISH=v4.2.1
+ARG QEMU_TREEISH=v4.2.0
 ARG QEMU_REMOTE=https://github.com/qemu/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
