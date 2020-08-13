@@ -47,7 +47,7 @@ RUN ../configure \
 		--static --cross-prefix="${CROSS_PREFIX?}" \
 		--enable-user --enable-werror --enable-stack-protector \
 		--disable-system --disable-modules --disable-tools --disable-guest-agent --disable-debug-info --disable-docs \
-		--target-list='x86_64-linux-user i386-linux-user aarch64-linux-user arm-linux-user ppc64le-linux-user s390x-linux-user riscv64-linux-user'
+		--target-list='x86_64-linux-user aarch64-linux-user arm-linux-user ppc64le-linux-user s390x-linux-user riscv64-linux-user'
 RUN make -j"$(nproc)"
 RUN for b in ./*-linux-user/qemu-*; do mv "$b" "$b"-static; done
 RUN for b in ./*-linux-user/qemu-*-static; do "${CROSS_PREFIX?}"strip -s "$b"; file "$b"; done

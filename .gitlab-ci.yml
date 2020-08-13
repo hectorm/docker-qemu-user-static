@@ -51,10 +51,6 @@ build:images:amd64:
   extends: .build:images:cross
   variables: {ARCH: 'amd64'}
 
-build:images:i386:
-  extends: .build:images:cross
-  variables: {ARCH: 'i386'}
-
 build:images:arm64v8:
   extends: .build:images:cross
   variables: {ARCH: 'arm64v8'}
@@ -89,11 +85,6 @@ push:images:amd64:
   dependencies: ['build:images:amd64']
   variables: {ARCH: 'amd64'}
 
-push:images:i386:
-  extends: .push:images:cross
-  dependencies: ['build:images:i386']
-  variables: {ARCH: 'i386'}
-
 push:images:arm64v8:
   extends: .push:images:cross
   dependencies: ['build:images:arm64v8']
@@ -122,7 +113,7 @@ push:images:s390x:
 push:manifests:cross:
   stage: 'push:manifests'
   dependencies: [
-    'push:images:amd64', 'push:images:i386',
+    'push:images:amd64',
     'push:images:arm64v8', 'push:images:arm32v7', 'push:images:arm32v6',
     'push:images:ppc64le', 'push:images:s390x'
   ]
