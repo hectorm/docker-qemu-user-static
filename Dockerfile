@@ -20,14 +20,16 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		python3
 
 # Clone QEMU
-ARG QEMU_TREEISH=v4.2.0
+ARG QEMU_TREEISH=v5.1.0
 ARG QEMU_REMOTE=https://github.com/qemu/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
 RUN git clone "${QEMU_REMOTE:?}" ./
 RUN git checkout "${QEMU_TREEISH:?}"
 RUN git submodule update --init --recursive
-
+# Revert until a workaround is found:
+# https://bugs.launchpad.net/qemu/+bug/1880332
+RUN git revert -n de0b1bae6461f67243282555475f88b2384a1eb9
 # Setup cross-compilation
 ARG CROSS_PREFIX=
 ARG DPKG_ARCH=
