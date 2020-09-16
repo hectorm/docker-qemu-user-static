@@ -48,27 +48,27 @@ build:images:native:
       - './dist/'
 
 build:images:amd64:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'amd64'}
 
 build:images:arm64v8:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'arm64v8'}
 
 build:images:arm32v7:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'arm32v7'}
 
 build:images:arm32v6:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'arm32v6'}
 
 build:images:ppc64le:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'ppc64le'}
 
 build:images:s390x:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 's390x'}
 
 .push:images:cross:
@@ -81,32 +81,32 @@ build:images:s390x:
     - 'make "load-${ARCH:?}-image" "push-${ARCH:?}-image"'
 
 push:images:amd64:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:amd64']
   variables: {ARCH: 'amd64'}
 
 push:images:arm64v8:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:arm64v8']
   variables: {ARCH: 'arm64v8'}
 
 push:images:arm32v7:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:arm32v7']
   variables: {ARCH: 'arm32v7'}
 
 push:images:arm32v6:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:arm32v6']
   variables: {ARCH: 'arm32v6'}
 
 push:images:ppc64le:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:ppc64le']
   variables: {ARCH: 'ppc64le'}
 
 push:images:s390x:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:s390x']
   variables: {ARCH: 's390x'}
 
