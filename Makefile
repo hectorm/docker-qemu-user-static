@@ -22,13 +22,13 @@ endif
 
 IMAGE_BUILD_OPTS :=
 
-IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).txz
-IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.txz
-IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.txz
-IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.txz
-IMAGE_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v6.txz
-IMAGE_PPC64LE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).ppc64le.txz
-IMAGE_S390X_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).s390x.txz
+IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).tzst
+IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.tzst
+IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.tzst
+IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.tzst
+IMAGE_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v6.tzst
+IMAGE_PPC64LE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).ppc64le.tzst
+IMAGE_S390X_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).s390x.tzst
 
 ##################################################
 ## "all" target
@@ -110,7 +110,7 @@ build-s390x-image:
 ##################################################
 
 define save_image
-	'$(DOCKER)' save '$(1)' | xz -T0 > '$(2)'
+	'$(DOCKER)' save '$(1)' | zstd -T0 -1 > '$(2)'
 endef
 
 .PHONY: save-native-image
@@ -170,7 +170,7 @@ $(IMAGE_S390X_TARBALL): build-s390x-image
 ##################################################
 
 define load_image
-	'$(DOCKER)' load -i '$(1)'
+	zstd -dc '$(1)' | '$(DOCKER)' load
 endef
 
 define tag_image
