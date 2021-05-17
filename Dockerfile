@@ -49,6 +49,8 @@ RUN make -j"$(nproc)"
 RUN for f in ./*-linux-user/qemu-*; do mv "${f:?}" "${f:?}"-static; done
 RUN for f in ./*-linux-user/qemu-*-static; do "${CROSS_PREFIX?}"strip -s "${f:?}"; file "${f:?}"; done
 RUN for f in ./*-linux-user/qemu-*-static; do test -z "$(readelf -x .interp "${f:?}" 2>/dev/null)"; done
+# Ignore already registered entries
+RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-binfmt-conf.sh
 
 ##################################################
 ## "qemu-user-static" stage
