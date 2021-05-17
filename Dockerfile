@@ -28,7 +28,7 @@ RUN if [ -n "${DPKG_ARCH?}" ]; then \
 	fi; apt-get install -y --no-install-recommends ${DPKG_PKGS:?}
 
 # Build QEMU
-ARG QEMU_TREEISH=v5.2.0
+ARG QEMU_TREEISH=v6.0.0
 ARG QEMU_REMOTE=https://github.com/qemu/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
