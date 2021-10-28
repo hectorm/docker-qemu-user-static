@@ -2,7 +2,7 @@
 ## "build" stage
 ##################################################
 
-FROM docker.io/debian:10 AS build
+FROM docker.io/debian:11 AS build
 
 # Install system packages
 RUN export DEBIAN_FRONTEND=noninteractive \
