@@ -19,7 +19,7 @@ fi
 
 if [ "${1-}" = '--reset' ]; then
 	shift
-	find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*' -exec sh -c 'printf -- "-1" > "$1"' _ '{}' ';'
+	find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*' -exec sh -c 'printf "-1" > "$1"' _ '{}' ';'
 fi
 
 exec "${QEMU_BIN_DIR:?}"/qemu-binfmt-conf.sh --qemu-path "${QEMU_BIN_DIR:?}" --qemu-suffix '-static' "$@"
