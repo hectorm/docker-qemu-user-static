@@ -30,6 +30,9 @@ IMAGE_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v6.tzst
 IMAGE_PPC64LE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).ppc64le.tzst
 IMAGE_S390X_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).s390x.tzst
 
+export DOCKER_BUILDKIT := 1
+export BUILDKIT_PROGRESS := plain
+
 ##################################################
 ## "all" target
 ##################################################
