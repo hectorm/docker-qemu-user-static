@@ -53,10 +53,10 @@ RUN for f in ./*-linux-user/qemu-*-static; do test -z "$(readelf -x .interp "${f
 RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-binfmt-conf.sh
 
 ##################################################
-## "qemu-user-static" stage
+## "main" stage
 ##################################################
 
-FROM docker.io/alpine:3 AS qemu-user-static
+FROM docker.io/alpine:3 AS main
 
 COPY --from=build --chown=root:root /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
 COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/
