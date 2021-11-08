@@ -29,7 +29,7 @@ RUN if [ -n "${DPKG_ARCH?}" ]; then \
 
 # Build QEMU
 ARG QEMU_TREEISH=v6.1.0
-ARG QEMU_REMOTE=https://github.com/qemu/qemu.git
+ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
 RUN git clone "${QEMU_REMOTE:?}" ./
