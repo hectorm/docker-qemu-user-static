@@ -15,7 +15,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		meson \
 		ninja-build \
 		pkgconf \
-		python3
+		python3 \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Setup cross-compilation
 ARG CROSS_PREFIX=
