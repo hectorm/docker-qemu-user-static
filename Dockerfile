@@ -22,8 +22,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 ARG CROSS_PREFIX=
 ARG DPKG_ARCH=
 ENV DPKG_PKGS='libglib2.0-dev'
-RUN if [ -n "${DPKG_ARCH?}" ]; then \
-		dpkg --add-architecture "${DPKG_ARCH:?}"; apt-get update; \
+RUN apt-get update \
+	&& if [ -n "${DPKG_ARCH?}" ]; then \
+		dpkg --add-architecture "${DPKG_ARCH:?}"; \
 		apt-get install -y crossbuild-essential-"${DPKG_ARCH:?}"; \
 		DPKG_PKGS=$(printf "%s:${DPKG_ARCH:?}\n" ${DPKG_PKGS:?}); \
 	fi; apt-get install -y --no-install-recommends ${DPKG_PKGS:?}
