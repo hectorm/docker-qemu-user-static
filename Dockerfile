@@ -34,7 +34,7 @@ RUN if [ -n "${DPKG_ARCH?}" ]; then \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build QEMU
-ARG QEMU_TREEISH=v6.2.0
+ARG QEMU_TREEISH=v7.0.0
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
