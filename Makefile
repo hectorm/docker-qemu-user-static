@@ -10,7 +10,7 @@ DISTDIR := ./dist
 DOCKERFILE := ./Dockerfile
 
 IMAGE_REGISTRY := docker.io
-IMAGE_NAMESPACE := hectormolinero
+IMAGE_NAMESPACE := hectorm
 IMAGE_PROJECT := qemu-user-static
 IMAGE_NAME := $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_PROJECT)
 IMAGE_VERSION := $(shell '$(GIT)' describe --abbrev=0 2>/dev/null || printf 'v0')
