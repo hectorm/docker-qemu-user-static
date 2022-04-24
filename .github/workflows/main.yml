@@ -21,10 +21,6 @@ jobs:
     steps:
       - name: 'Checkout project'
         uses: 'actions/checkout@v3'
-      - name: 'Register binfmt entries'
-        if: "matrix.arch != 'native'"
-        run: |
-          make binfmt-register
       - name: 'Build image'
         run: |
           make IMAGE_BUILD_OPTS="--pull" "build-${{ matrix.arch }}-image"
