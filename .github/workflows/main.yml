@@ -21,15 +21,10 @@ jobs:
     steps:
       - name: 'Checkout project'
         uses: 'actions/checkout@v3'
-      - name: 'Build image'
+      - name: 'Build and save image'
         run: |
-          make IMAGE_BUILD_OPTS="--pull" "build-${{ matrix.arch }}-image"
-      - name: 'Save image'
-        if: "matrix.arch != 'native'"
-        run: |
-          make "save-${{ matrix.arch }}-image"
+          make IMAGE_BUILD_OPTS="--pull" "build-${{ matrix.arch }}-image" "save-${{ matrix.arch }}-image"
       - name: 'Upload artifacts'
-        if: "matrix.arch != 'native'"
         uses: 'actions/upload-artifact@v3'
         with:
           name: 'dist'
@@ -59,12 +54,9 @@ jobs:
           registry: 'docker.io'
           username: '${{ secrets.DOCKERHUB_USERNAME }}'
           password: '${{ secrets.DOCKERHUB_TOKEN }}'
-      - name: 'Load image'
+      - name: 'Load and push image'
         run: |
-          make "load-${{ matrix.arch }}-image"
-      - name: 'Push image'
-        run: |
-          make "push-${{ matrix.arch }}-image"
+          make "load-${{ matrix.arch }}-image" "push-${{ matrix.arch }}-image"
 
   push-manifest:
     name: 'Push manifest'
