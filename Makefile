@@ -15,7 +15,7 @@ IMAGE_PROJECT := qemu-user-static
 IMAGE_NAME := $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_PROJECT)
 IMAGE_GIT_TAG := $(shell '$(GIT)' tag -l --contains HEAD 2>/dev/null)
 IMAGE_GIT_SHA := $(shell '$(GIT)' rev-parse HEAD 2>/dev/null)
-IMAGE_VERSION := $(if $(IMAGE_GIT_TAG),$(IMAGE_GIT_TAG),$(if $(IMAGE_GIT_TAG),$(IMAGE_GIT_SHA),nil))
+IMAGE_VERSION := $(if $(IMAGE_GIT_TAG),$(IMAGE_GIT_TAG),$(if $(IMAGE_GIT_SHA),$(IMAGE_GIT_SHA),nil))
 
 IMAGE_BUILD_OPTS :=
 
