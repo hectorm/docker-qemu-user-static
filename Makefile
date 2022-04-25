@@ -110,7 +110,7 @@ build-s390x-image:
 ##################################################
 
 define save_image
-	'$(DOCKER)' save '$(1)' | zstd -T0 -19 > '$(2)'
+	'$(DOCKER)' save '$(1)' | zstd -T0 > '$(2)'
 endef
 
 .PHONY: save-native-image
