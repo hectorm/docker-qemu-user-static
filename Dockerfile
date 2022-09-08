@@ -4,33 +4,25 @@
 
 FROM docker.io/debian:11 AS build
 
+ARG CROSS_PREFIX=
+ARG CROSS_DPKG_ARCH=
+
 # Install system packages
 RUN export DEBIAN_FRONTEND=noninteractive \
+	&& { [ -z "${CROSS_DPKG_ARCH?}" ] || dpkg --add-architecture "${CROSS_DPKG_ARCH:?}"; } \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		build-essential \
 		ca-certificates \
 		file \
 		git \
+		make \
 		meson \
 		ninja-build \
 		pkgconf \
 		python3 \
-	&& rm -rf /var/lib/apt/lists/*
-
-# Setup cross-compilation
-ARG CROSS_PREFIX=
-ARG DPKG_ARCH=
-ENV DPKG_PKGS='libglib2.0-dev'
-RUN if [ -n "${DPKG_ARCH?}" ]; then \
-		dpkg --add-architecture "${DPKG_ARCH:?}" \
-		&& apt-get update \
-		&& apt-get install -y crossbuild-essential-"${DPKG_ARCH:?}" \
-		&& DPKG_PKGS=$(printf "%s:${DPKG_ARCH:?}\n" ${DPKG_PKGS:?}); \
-	else \
-		apt-get update; \
-	fi \
-	&& apt-get install -y --no-install-recommends ${DPKG_PKGS:?} \
+		${CROSS_DPKG_ARCH:+crossbuild-essential-"${CROSS_DPKG_ARCH:?}"} \
+		libglib2.0-dev"${CROSS_DPKG_ARCH:+:"${CROSS_DPKG_ARCH:?}"}" \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build QEMU
@@ -59,7 +51,7 @@ RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-b
 ## "main" stage
 ##################################################
 
-FROM docker.io/alpine:3 AS main
+FROM --platform=${TARGETPLATFORM:-linux/amd64} docker.io/busybox:latest AS main
 
 COPY --from=build --chown=root:root /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
 COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/
