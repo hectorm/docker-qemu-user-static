@@ -41,9 +41,6 @@ WORKDIR /tmp/qemu/
 RUN git clone "${QEMU_REMOTE:?}" ./
 RUN git checkout "${QEMU_TREEISH:?}"
 RUN git submodule update --init --recursive
-# Revert until a workaround is found:
-# https://bugs.launchpad.net/qemu/+bug/1880332
-RUN git revert -n de0b1bae6461f67243282555475f88b2384a1eb9
 RUN mkdir /tmp/qemu/build/
 WORKDIR /tmp/qemu/build/
 RUN ../configure \
