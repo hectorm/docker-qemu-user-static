@@ -16,6 +16,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		ca-certificates \
 		file \
 		git \
+		libcap2-bin \
 		make \
 		meson \
 		ninja-build \
@@ -41,9 +42,15 @@ RUN ../configure \
 		--disable-system --disable-modules --disable-tools --disable-guest-agent --disable-debug-info --disable-docs \
 		--target-list='x86_64-linux-user aarch64-linux-user arm-linux-user ppc64le-linux-user s390x-linux-user riscv64-linux-user'
 RUN make -j"$(nproc)"
-RUN for f in ./*-linux-user/qemu-*; do mv "${f:?}" "${f:?}"-static; done
-RUN for f in ./*-linux-user/qemu-*-static; do "${CROSS_PREFIX?}"strip -s "${f:?}"; file "${f:?}"; done
-RUN for f in ./*-linux-user/qemu-*-static; do test -z "$(readelf -x .interp "${f:?}" 2>/dev/null)"; done
+RUN set -eu; mkdir ./bin/; \
+	for f in ./*-linux-user/qemu-*; do \
+		in=$(readlink -f "${f:?}"); \
+		out=./bin/"$(basename "${in:?}")"-static; \
+		"${CROSS_PREFIX?}"strip -s "${in:?}"; \
+		setcap cap_net_bind_service=+ep "${in:?}"; \
+		test -z "$(readelf -x .interp "${in:?}" 2>/dev/null)"; \
+		mv "${in:?}" "${out:?}"; \
+	done
 # Ignore already registered entries
 RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-binfmt-conf.sh
 
@@ -53,7 +60,7 @@ RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-b
 
 FROM --platform=${TARGETPLATFORM:-linux/amd64} docker.io/busybox:latest AS main
 
-COPY --from=build --chown=root:root /tmp/qemu/build/*-linux-user/qemu-*-static /usr/bin/
+COPY --from=build --chown=root:root /tmp/qemu/build/bin/* /usr/bin/
 COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/
 COPY --chown=root:root ./scripts/bin/ /usr/bin/
 
