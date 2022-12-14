@@ -27,7 +27,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build QEMU
-ARG QEMU_TREEISH=v7.1.0
+ARG QEMU_TREEISH=v7.2.0
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
@@ -49,7 +49,7 @@ RUN set -eu; mkdir ./bin/; \
 		"${CROSS_PREFIX?}"strip -s "${in:?}"; \
 		setcap cap_net_bind_service=+ep "${in:?}"; \
 		test -z "$(readelf -x .interp "${in:?}" 2>/dev/null)"; \
-		mv "${in:?}" "${out:?}"; \
+		mv "${in:?}" "${out:?}"; file "${out:?}"; \
 	done
 # Ignore already registered entries
 RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-binfmt-conf.sh
