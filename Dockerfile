@@ -2,7 +2,7 @@
 ## "build" stage
 ##################################################
 
-FROM docker.io/debian:11 AS build
+FROM docker.io/debian:12 AS build
 
 ARG CROSS_PREFIX=
 ARG CROSS_DPKG_ARCH=
