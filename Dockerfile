@@ -27,7 +27,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build QEMU
-ARG QEMU_TREEISH=v8.0.2
+ARG QEMU_TREEISH=v8.0.3
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
