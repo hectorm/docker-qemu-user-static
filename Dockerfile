@@ -22,12 +22,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		ninja-build \
 		pkgconf \
 		python3 \
+		python3-venv \
 		${CROSS_DPKG_ARCH:+crossbuild-essential-"${CROSS_DPKG_ARCH:?}"} \
 		libglib2.0-dev"${CROSS_DPKG_ARCH:+:"${CROSS_DPKG_ARCH:?}"}" \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build QEMU
-ARG QEMU_TREEISH=v8.0.4
+ARG QEMU_TREEISH=v8.1.0
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 RUN mkdir /tmp/qemu/
 WORKDIR /tmp/qemu/
