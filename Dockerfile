@@ -2,7 +2,7 @@
 ## "build" stage
 ##################################################
 
-FROM docker.io/debian:12 AS build
+FROM --platform=${BUILDPLATFORM} docker.io/debian:12 AS build
 
 ARG CROSS_PREFIX=
 ARG CROSS_DPKG_ARCH=
@@ -61,7 +61,7 @@ RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-b
 ## "main" stage
 ##################################################
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} docker.io/busybox:latest AS main
+FROM docker.io/busybox:latest AS main
 
 COPY --from=build --chown=root:root /tmp/qemu/build/bin/* /usr/bin/
 COPY --from=build --chown=root:root /tmp/qemu/scripts/qemu-binfmt-conf.sh /usr/bin/

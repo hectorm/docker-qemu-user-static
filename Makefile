@@ -61,7 +61,7 @@ build-amd64-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-amd64' \
 		--tag '$(IMAGE_NAME):latest-amd64' \
-		--build-arg TARGETPLATFORM=linux/amd64 \
+		--platform linux/amd64 \
 		--build-arg CROSS_PREFIX=x86_64-linux-gnu- \
 		--build-arg CROSS_DPKG_ARCH=amd64 \
 		--file '$(DOCKERFILE)' ./
@@ -71,7 +71,7 @@ build-arm64v8-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8' \
 		--tag '$(IMAGE_NAME):latest-arm64v8' \
-		--build-arg TARGETPLATFORM=linux/arm64/v8 \
+		--platform linux/arm64/v8 \
 		--build-arg CROSS_PREFIX=aarch64-linux-gnu- \
 		--build-arg CROSS_DPKG_ARCH=arm64 \
 		--file '$(DOCKERFILE)' ./
@@ -81,7 +81,7 @@ build-arm32v7-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7' \
 		--tag '$(IMAGE_NAME):latest-arm32v7' \
-		--build-arg TARGETPLATFORM=linux/arm/v7 \
+		--platform linux/arm/v7 \
 		--build-arg CROSS_PREFIX=arm-linux-gnueabihf- \
 		--build-arg CROSS_DPKG_ARCH=armhf \
 		--file '$(DOCKERFILE)' ./
@@ -91,7 +91,7 @@ build-arm32v6-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6' \
 		--tag '$(IMAGE_NAME):latest-arm32v6' \
-		--build-arg TARGETPLATFORM=linux/arm/v6 \
+		--platform linux/arm/v6 \
 		--build-arg CROSS_PREFIX=arm-linux-gnueabi- \
 		--build-arg CROSS_DPKG_ARCH=armel \
 		--file '$(DOCKERFILE)' ./
@@ -101,7 +101,7 @@ build-ppc64le-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-ppc64le' \
 		--tag '$(IMAGE_NAME):latest-ppc64le' \
-		--build-arg TARGETPLATFORM=linux/ppc64le \
+		--platform linux/ppc64le \
 		--build-arg CROSS_PREFIX=powerpc64le-linux-gnu- \
 		--build-arg CROSS_DPKG_ARCH=ppc64el \
 		--file '$(DOCKERFILE)' ./
@@ -111,7 +111,7 @@ build-s390x-image:
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-s390x' \
 		--tag '$(IMAGE_NAME):latest-s390x' \
-		--build-arg TARGETPLATFORM=linux/s390x \
+		--platform linux/s390x \
 		--build-arg CROSS_PREFIX=s390x-linux-gnu- \
 		--build-arg CROSS_DPKG_ARCH=s390x \
 		--file '$(DOCKERFILE)' ./
