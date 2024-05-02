@@ -19,7 +19,7 @@ jobs:
       contents: 'read'
     strategy:
       matrix:
-        arch: ['native', 'amd64', 'arm64v8', 'arm32v7', 'arm32v6', 'ppc64le', 's390x']
+        arch: ['native', 'amd64', 'arm64v8', 'arm32v7', 'arm32v6', 'riscv64', 'ppc64le', 's390x']
     steps:
       - name: 'Checkout project'
         uses: 'actions/checkout@v4'
@@ -43,7 +43,7 @@ jobs:
       contents: 'read'
     strategy:
       matrix:
-        arch: ['amd64', 'arm64v8', 'arm32v7', 'arm32v6', 'ppc64le', 's390x']
+        arch: ['amd64', 'arm64v8', 'arm32v7', 'arm32v6', 'riscv64', 'ppc64le', 's390x']
     steps:
       - name: 'Checkout project'
         uses: 'actions/checkout@v4'
