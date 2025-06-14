@@ -68,7 +68,7 @@ COPY <<-EOF ${SYSROOT}/cross.ini
 EOF
 
 # Build libffi
-ARG LIBFFI_TREEISH=v3.4.6
+ARG LIBFFI_TREEISH=v3.4.8
 ARG LIBFFI_REMOTE=https://github.com/libffi/libffi.git
 WORKDIR ${BUILDDIR}/libffi/
 RUN git clone "${LIBFFI_REMOTE:?}" ./ \
