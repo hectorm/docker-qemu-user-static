@@ -23,8 +23,6 @@ jobs:
           - "native"
           - "amd64"
           - "arm64v8"
-          - "arm32v7"
-          - "arm32v6"
           - "riscv64"
           - "ppc64le"
           - "s390x"
@@ -54,8 +52,6 @@ jobs:
         arch:
           - "amd64"
           - "arm64v8"
-          - "arm32v7"
-          - "arm32v6"
           - "riscv64"
           - "ppc64le"
           - "s390x"

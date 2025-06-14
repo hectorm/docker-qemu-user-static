@@ -27,8 +27,6 @@ IMAGE_BUILD_OPTS :=
 IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).tzst
 IMAGE_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).amd64.tzst
 IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.tzst
-IMAGE_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v7.tzst
-IMAGE_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm32v6.tzst
 IMAGE_RISCV64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).riscv64.tzst
 IMAGE_PPC64LE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).ppc64le.tzst
 IMAGE_S390X_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).s390x.tzst
@@ -55,7 +53,7 @@ build-native-image:
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-cross-images
-build-cross-images: build-amd64-image build-arm64v8-image build-arm32v7-image build-arm32v6-image build-riscv64-image build-ppc64le-image build-s390x-image
+build-cross-images: build-amd64-image build-arm64v8-image build-riscv64-image build-ppc64le-image build-s390x-image
 
 .PHONY: build-amd64-image
 build-amd64-image:
@@ -77,28 +75,6 @@ build-arm64v8-image:
 		--build-arg CROSS_PREFIX=aarch64-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=aarch64 \
 		--build-arg MESON_CPU=armv8 \
-		--file '$(DOCKERFILE)' ./
-
-.PHONY: build-arm32v7-image
-build-arm32v7-image:
-	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
-		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7' \
-		--tag '$(IMAGE_NAME):latest-arm32v7' \
-		--platform linux/arm/v7 \
-		--build-arg CROSS_PREFIX=arm-linux-gnueabihf- \
-		--build-arg MESON_CPU_FAMILY=arm \
-		--build-arg MESON_CPU=armv7 \
-		--file '$(DOCKERFILE)' ./
-
-.PHONY: build-arm32v6-image
-build-arm32v6-image:
-	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
-		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6' \
-		--tag '$(IMAGE_NAME):latest-arm32v6' \
-		--platform linux/arm/v6 \
-		--build-arg CROSS_PREFIX=arm-linux-gnueabi- \
-		--build-arg MESON_CPU_FAMILY=arm \
-		--build-arg MESON_CPU=armv6 \
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-riscv64-image
@@ -150,7 +126,7 @@ $(IMAGE_NATIVE_TARBALL): build-native-image
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION),$@)
 
 .PHONY: save-cross-images
-save-cross-images: save-amd64-image save-arm64v8-image save-arm32v7-image save-arm32v6-image save-riscv64-image save-ppc64le-image save-s390x-image
+save-cross-images: save-amd64-image save-arm64v8-image save-riscv64-image save-ppc64le-image save-s390x-image
 
 .PHONY: save-amd64-image
 save-amd64-image: $(IMAGE_AMD64_TARBALL)
@@ -165,20 +141,6 @@ save-arm64v8-image: $(IMAGE_ARM64V8_TARBALL)
 $(IMAGE_ARM64V8_TARBALL): build-arm64v8-image
 	mkdir -p '$(DISTDIR)'
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8,$@)
-
-.PHONY: save-arm32v7-image
-save-arm32v7-image: $(IMAGE_ARM32V7_TARBALL)
-
-$(IMAGE_ARM32V7_TARBALL): build-arm32v7-image
-	mkdir -p '$(DISTDIR)'
-	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7,$@)
-
-.PHONY: save-arm32v6-image
-save-arm32v6-image: $(IMAGE_ARM32V6_TARBALL)
-
-$(IMAGE_ARM32V6_TARBALL): build-arm32v6-image
-	mkdir -p '$(DISTDIR)'
-	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6,$@)
 
 .PHONY: save-riscv64-image
 save-riscv64-image: $(IMAGE_RISCV64_TARBALL)
@@ -219,7 +181,7 @@ load-native-image:
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION),$(IMAGE_NAME):latest)
 
 .PHONY: load-cross-images
-load-cross-images: load-amd64-image load-arm64v8-image load-arm32v7-image load-arm32v6-image load-riscv64-image load-ppc64le-image load-s390x-image
+load-cross-images: load-amd64-image load-arm64v8-image load-riscv64-image load-ppc64le-image load-s390x-image
 
 .PHONY: load-amd64-image
 load-amd64-image:
@@ -230,16 +192,6 @@ load-amd64-image:
 load-arm64v8-image:
 	$(call load_image,$(IMAGE_ARM64V8_TARBALL))
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8,$(IMAGE_NAME):latest-arm64v8)
-
-.PHONY: load-arm32v7-image
-load-arm32v7-image:
-	$(call load_image,$(IMAGE_ARM32V7_TARBALL))
-	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7,$(IMAGE_NAME):latest-arm32v7)
-
-.PHONY: load-arm32v6-image
-load-arm32v6-image:
-	$(call load_image,$(IMAGE_ARM32V6_TARBALL))
-	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6,$(IMAGE_NAME):latest-arm32v6)
 
 .PHONY: load-riscv64-image
 load-riscv64-image:
@@ -265,11 +217,9 @@ define push_image
 endef
 
 define push_cross_manifest
-	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-arm64v8' '$(2)-arm32v7' '$(2)-arm32v6' '$(2)-riscv64' '$(2)-ppc64le' '$(2)-s390x'
+	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-arm64v8' '$(2)-riscv64' '$(2)-ppc64le' '$(2)-s390x'
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-amd64' --os linux --arch amd64
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm64v8' --os linux --arch arm64 --variant v8
-	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v7' --os linux --arch arm --variant v7
-	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm32v6' --os linux --arch arm --variant v6
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-riscv64' --os linux --arch riscv64
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-ppc64le' --os linux --arch ppc64le
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-s390x' --os linux --arch s390x
@@ -281,7 +231,7 @@ push-native-image:
 	@printf '%s\n' 'Unimplemented'
 
 .PHONY: push-cross-images
-push-cross-images: push-amd64-image push-arm64v8-image push-arm32v7-image push-arm32v6-image push-riscv64-image push-ppc64le-image push-s390x-image
+push-cross-images: push-amd64-image push-arm64v8-image push-riscv64-image push-ppc64le-image push-s390x-image
 
 .PHONY: push-amd64-image
 push-amd64-image:
@@ -292,16 +242,6 @@ push-amd64-image:
 push-arm64v8-image:
 	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8)
 	$(call push_image,$(IMAGE_NAME):latest-arm64v8)
-
-.PHONY: push-arm32v7-image
-push-arm32v7-image:
-	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v7)
-	$(call push_image,$(IMAGE_NAME):latest-arm32v7)
-
-.PHONY: push-arm32v6-image
-push-arm32v6-image:
-	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-arm32v6)
-	$(call push_image,$(IMAGE_NAME):latest-arm32v6)
 
 .PHONY: push-riscv64-image
 push-riscv64-image:
@@ -346,6 +286,6 @@ version:
 clean:
 	rm -f '$(IMAGE_NATIVE_TARBALL)'
 	rm -f '$(IMAGE_AMD64_TARBALL)'
-	rm -f '$(IMAGE_ARM64V8_TARBALL)' '$(IMAGE_ARM32V7_TARBALL)' '$(IMAGE_ARM32V6_TARBALL)'
+	rm -f '$(IMAGE_ARM64V8_TARBALL)'
 	rm -f '$(IMAGE_RISCV64_TARBALL)' '$(IMAGE_PPC64LE_TARBALL)' '$(IMAGE_S390X_TARBALL)'
 	if [ -d '$(DISTDIR)' ] && [ -z "$$(ls -A '$(DISTDIR)')" ]; then rmdir '$(DISTDIR)'; fi
