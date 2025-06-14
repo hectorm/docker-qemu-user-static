@@ -2,7 +2,7 @@
 ## "build" stage
 ##################################################
 
-FROM --platform=${BUILDPLATFORM} docker.io/ubuntu:24.04 AS build
+FROM --platform=${BUILDPLATFORM} docker.io/debian:sid-slim AS build
 
 # Arguments
 ARG CROSS_PREFIX=
