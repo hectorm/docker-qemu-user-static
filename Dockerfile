@@ -88,7 +88,7 @@ RUN ninja -C ./build/ install
 RUN pkg-config --static --exists --print-errors libffi
 
 # Build glib
-ARG GLIB_TREEISH=2.85.1
+ARG GLIB_TREEISH=2.86.0
 ARG GLIB_REMOTE=https://gitlab.gnome.org/GNOME/glib.git
 WORKDIR ${BUILDDIR}/glib/
 RUN git clone "${GLIB_REMOTE:?}" ./ \
