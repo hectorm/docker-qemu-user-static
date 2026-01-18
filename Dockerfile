@@ -31,6 +31,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		curl \
 		file \
 		git \
+		libarchive-tools \
 		libcap2-bin \
 		make \
 		meson \
@@ -77,14 +78,18 @@ COPY <<-EOF ${SYSROOT}/cross.ini
 EOF
 
 # Build libffi
-ARG LIBFFI_TREEISH=v3.4.8
+ARG LIBFFI_TREEISH=e2eda0cf72a0598b44278cc91860ea402273fa29 # v3.5.2
 ARG LIBFFI_REMOTE=https://github.com/libffi/libffi.git
+ARG LIBFFI_WRAPDB_PATCH_URL=https://wrapdb.mesonbuild.com/v2/libffi_3.5.2-1/get_patch
+ARG LIBFFI_WRAPDB_PATCH_HASH=1ee3035d92e4df3541d0b2b8d192d2fa183b46e4a3d68c00d8f71ede354bee74
 WORKDIR ${BUILDDIR}/libffi/
 RUN git clone "${LIBFFI_REMOTE:?}" ./ \
 	&& git checkout "${LIBFFI_TREEISH:?}" \
 	&& git submodule update --init --recursive
-# Apply Meson build system patch ( https://github.com/libffi/libffi/pull/746 )
-RUN curl -sSfL "${LIBFFI_REMOTE%.git}/compare/${LIBFFI_TREEISH:?}...xclaesse:libffi:41fc1ec.patch" | git apply -v
+RUN curl -sSfLo /tmp/libffi-wrapdb-patch.zip "${LIBFFI_WRAPDB_PATCH_URL:?}" \
+	&& printf '%s  %s\n' "${LIBFFI_WRAPDB_PATCH_HASH:?}" /tmp/libffi-wrapdb-patch.zip | sha256sum -c - \
+	&& bsdtar -xf /tmp/libffi-wrapdb-patch.zip --strip-components=1 \
+	&& rm -f /tmp/libffi-wrapdb-patch.zip
 RUN meson setup ./build/ \
 	--prefix="${SYSROOT:?}" \
 	--libdir="${SYSROOT:?}"/lib \
