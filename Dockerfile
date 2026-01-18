@@ -141,10 +141,10 @@ RUN ../configure \
 		--static --cross-prefix="${CROSS_PREFIX:-}" \
 		--enable-user --enable-werror --enable-stack-protector \
 		--disable-system --disable-modules --disable-tools --disable-guest-agent --disable-debug-info --disable-docs \
-		--target-list='x86_64-linux-user aarch64-linux-user arm-linux-user riscv64-linux-user ppc64le-linux-user s390x-linux-user'
+		--target-list='x86_64-linux-user aarch64-linux-user arm-linux-user riscv64-linux-user ppc64le-linux-user s390x-linux-user loongarch64-linux-user'
 RUN make -j"$(nproc)"
 RUN set -eu; mkdir ./bin/; \
-	for f in ./qemu-x86_64 ./qemu-aarch64 ./qemu-arm ./qemu-riscv64 ./qemu-ppc64le ./qemu-s390x; do \
+	for f in ./qemu-x86_64 ./qemu-aarch64 ./qemu-arm ./qemu-riscv64 ./qemu-ppc64le ./qemu-s390x ./qemu-loongarch64; do \
 		in=$(readlink -f "${f:?}"); \
 		out=./bin/"$(basename "${in:?}")"-static; \
 		"${CROSS_PREFIX:-}"strip -s "${in:?}"; \

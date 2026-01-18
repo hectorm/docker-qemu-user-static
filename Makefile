@@ -30,6 +30,7 @@ IMAGE_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).arm64v8.tzst
 IMAGE_RISCV64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).riscv64.tzst
 IMAGE_PPC64LE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).ppc64le.tzst
 IMAGE_S390X_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).s390x.tzst
+IMAGE_LOONG64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).loong64.tzst
 
 export DOCKER_BUILDKIT := 1
 export BUILDKIT_PROGRESS := plain
@@ -53,7 +54,7 @@ build-native-image:
 		--file '$(DOCKERFILE)' ./
 
 .PHONY: build-cross-images
-build-cross-images: build-amd64-image build-arm64v8-image build-riscv64-image build-ppc64le-image build-s390x-image
+build-cross-images: build-amd64-image build-arm64v8-image build-riscv64-image build-ppc64le-image build-s390x-image build-loong64-image
 
 .PHONY: build-amd64-image
 build-amd64-image:
@@ -115,6 +116,18 @@ build-s390x-image:
 		--build-arg MESON_CPU=s390x \
 		--file '$(DOCKERFILE)' ./
 
+.PHONY: build-loong64-image
+build-loong64-image:
+	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
+		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-loong64' \
+		--tag '$(IMAGE_NAME):latest-loong64' \
+		--platform linux/loong64 \
+		--build-arg DPKG_ARCH=loong64 \
+		--build-arg CROSS_PREFIX=loongarch64-linux-gnu- \
+		--build-arg MESON_CPU_FAMILY=loongarch64 \
+		--build-arg MESON_CPU=loongarch64 \
+		--file '$(DOCKERFILE)' ./
+
 ##################################################
 ## "save-*" targets
 ##################################################
@@ -131,7 +144,7 @@ $(IMAGE_NATIVE_TARBALL): build-native-image
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION),$@)
 
 .PHONY: save-cross-images
-save-cross-images: save-amd64-image save-arm64v8-image save-riscv64-image save-ppc64le-image save-s390x-image
+save-cross-images: save-amd64-image save-arm64v8-image save-riscv64-image save-ppc64le-image save-s390x-image save-loong64-image
 
 .PHONY: save-amd64-image
 save-amd64-image: $(IMAGE_AMD64_TARBALL)
@@ -168,6 +181,13 @@ $(IMAGE_S390X_TARBALL): build-s390x-image
 	mkdir -p '$(DISTDIR)'
 	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-s390x,$@)
 
+.PHONY: save-loong64-image
+save-loong64-image: $(IMAGE_LOONG64_TARBALL)
+
+$(IMAGE_LOONG64_TARBALL): build-loong64-image
+	mkdir -p '$(DISTDIR)'
+	$(call save_image,$(IMAGE_NAME):$(IMAGE_VERSION)-loong64,$@)
+
 ##################################################
 ## "load-*" targets
 ##################################################
@@ -186,7 +206,7 @@ load-native-image:
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION),$(IMAGE_NAME):latest)
 
 .PHONY: load-cross-images
-load-cross-images: load-amd64-image load-arm64v8-image load-riscv64-image load-ppc64le-image load-s390x-image
+load-cross-images: load-amd64-image load-arm64v8-image load-riscv64-image load-ppc64le-image load-s390x-image load-loong64-image
 
 .PHONY: load-amd64-image
 load-amd64-image:
@@ -213,6 +233,11 @@ load-s390x-image:
 	$(call load_image,$(IMAGE_S390X_TARBALL))
 	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-s390x,$(IMAGE_NAME):latest-s390x)
 
+.PHONY: load-loong64-image
+load-loong64-image:
+	$(call load_image,$(IMAGE_LOONG64_TARBALL))
+	$(call tag_image,$(IMAGE_NAME):$(IMAGE_VERSION)-loong64,$(IMAGE_NAME):latest-loong64)
+
 ##################################################
 ## "push-*" targets
 ##################################################
@@ -222,12 +247,13 @@ define push_image
 endef
 
 define push_cross_manifest
-	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-arm64v8' '$(2)-riscv64' '$(2)-ppc64le' '$(2)-s390x'
+	'$(DOCKER)' manifest create --amend '$(1)' '$(2)-amd64' '$(2)-arm64v8' '$(2)-riscv64' '$(2)-ppc64le' '$(2)-s390x' '$(2)-loong64'
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-amd64' --os linux --arch amd64
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-arm64v8' --os linux --arch arm64 --variant v8
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-riscv64' --os linux --arch riscv64
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-ppc64le' --os linux --arch ppc64le
 	'$(DOCKER)' manifest annotate '$(1)' '$(2)-s390x' --os linux --arch s390x
+	'$(DOCKER)' manifest annotate '$(1)' '$(2)-loong64' --os linux --arch loong64
 	'$(DOCKER)' manifest push --purge '$(1)'
 endef
 
@@ -236,7 +262,7 @@ push-native-image:
 	@printf '%s\n' 'Unimplemented'
 
 .PHONY: push-cross-images
-push-cross-images: push-amd64-image push-arm64v8-image push-riscv64-image push-ppc64le-image push-s390x-image
+push-cross-images: push-amd64-image push-arm64v8-image push-riscv64-image push-ppc64le-image push-s390x-image push-loong64-image
 
 .PHONY: push-amd64-image
 push-amd64-image:
@@ -262,6 +288,11 @@ push-ppc64le-image:
 push-s390x-image:
 	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-s390x)
 	$(call push_image,$(IMAGE_NAME):latest-s390x)
+
+.PHONY: push-loong64-image
+push-loong64-image:
+	$(call push_image,$(IMAGE_NAME):$(IMAGE_VERSION)-loong64)
+	$(call push_image,$(IMAGE_NAME):latest-loong64)
 
 push-cross-manifest:
 	$(call push_cross_manifest,$(IMAGE_NAME):$(IMAGE_VERSION),$(IMAGE_NAME):$(IMAGE_VERSION))
@@ -289,8 +320,11 @@ version:
 
 .PHONY: clean
 clean:
-	rm -f '$(IMAGE_NATIVE_TARBALL)'
-	rm -f '$(IMAGE_AMD64_TARBALL)'
-	rm -f '$(IMAGE_ARM64V8_TARBALL)'
-	rm -f '$(IMAGE_RISCV64_TARBALL)' '$(IMAGE_PPC64LE_TARBALL)' '$(IMAGE_S390X_TARBALL)'
-	if [ -d '$(DISTDIR)' ] && [ -z "$$(ls -A '$(DISTDIR)')" ]; then rmdir '$(DISTDIR)'; fi
+	@rm -fv '$(IMAGE_NATIVE_TARBALL)'
+	@rm -fv '$(IMAGE_AMD64_TARBALL)'
+	@rm -fv '$(IMAGE_ARM64V8_TARBALL)'
+	@rm -fv '$(IMAGE_RISCV64_TARBALL)'
+	@rm -fv '$(IMAGE_PPC64LE_TARBALL)'
+	@rm -fv '$(IMAGE_S390X_TARBALL)'
+	@rm -fv '$(IMAGE_LOONG64_TARBALL)'
+	@if [ -d '$(DISTDIR)' ] && [ -z "$$(ls -A '$(DISTDIR)')" ]; then rmdir -v '$(DISTDIR)'; fi
