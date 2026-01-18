@@ -128,7 +128,7 @@ RUN ninja -C ./build/ install
 RUN pkg-config --static --exists --print-errors glib-2.0
 
 # Build QEMU
-ARG QEMU_TREEISH=v10.1.1
+ARG QEMU_TREEISH=698104725efad4b29079d857dfdebbd804e34c99 # v10.2.0
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 WORKDIR ${BUILDDIR}/qemu/
 RUN git clone "${QEMU_REMOTE:?}" ./ \
