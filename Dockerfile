@@ -1,15 +1,16 @@
+# syntax=docker.io/docker/dockerfile:1
+
 ##################################################
 ## "build" stage
 ##################################################
 
-FROM --platform=${BUILDPLATFORM} docker.io/debian:sid-slim AS build
+FROM --platform=${BUILDPLATFORM:-linux/amd64} docker.io/debian:sid-slim AS build
 
-# Arguments
-ARG CROSS_PREFIX=
-ARG MESON_CPU_FAMILY=
-ARG MESON_CPU=
+ARG DPKG_ARCH
+ARG CROSS_PREFIX
+ARG MESON_CPU_FAMILY
+ARG MESON_CPU
 
-# Environment
 ENV BUILDDIR=/tmp/build
 ENV SYSROOT=/tmp/sysroot
 ENV PKG_CONFIG=/usr/bin/pkg-config
@@ -19,7 +20,10 @@ ENV PKG_CONFIG_PATH=${PKG_CONFIG_LIBDIR}
 
 # Install system packages
 RUN export DEBIAN_FRONTEND=noninteractive \
-	&& CROSS_DPKG_SUFFIX=$(printenv CROSS_PREFIX | tr '_' '-') \
+	&& CROSS_SUFFIX=$(printenv CROSS_PREFIX | tr '_' '-') \
+	&& if [ -n "${DPKG_ARCH:-}" ]; then \
+		dpkg --add-architecture "${DPKG_ARCH:?}"; \
+	fi \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		build-essential \
@@ -35,12 +39,17 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		python3 \
 		python3-packaging \
 		python3-venv \
-		${CROSS_DPKG_SUFFIX:+ \
-			binutils-"${CROSS_DPKG_SUFFIX%-}" \
-			cpp-"${CROSS_DPKG_SUFFIX%-}" \
-			g++-"${CROSS_DPKG_SUFFIX%-}" \
-			gcc-"${CROSS_DPKG_SUFFIX%-}" \
+		${CROSS_SUFFIX:+ \
+			binutils-"${CROSS_SUFFIX%-}" \
+			cpp-"${CROSS_SUFFIX%-}" \
+			g++-"${CROSS_SUFFIX%-}" \
+			gcc-"${CROSS_SUFFIX%-}" \
 		} \
+	&& if [ -z "${DPKG_ARCH:-}" ]; then \
+		apt-get install -y busybox-static; \
+	else \
+		apt-get install -y busybox-static:"${DPKG_ARCH:?}"; \
+	fi \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Create Meson cross-file
@@ -124,7 +133,7 @@ RUN git clone "${QEMU_REMOTE:?}" ./ \
 RUN git revert -n aec338d63bc28f1f13d5e64c561d7f1dd0e4b07e
 WORKDIR ${BUILDDIR}/qemu/build/
 RUN ../configure \
-		--static --cross-prefix="${CROSS_PREFIX?}" \
+		--static --cross-prefix="${CROSS_PREFIX:-}" \
 		--enable-user --enable-werror --enable-stack-protector \
 		--disable-system --disable-modules --disable-tools --disable-guest-agent --disable-debug-info --disable-docs \
 		--target-list='x86_64-linux-user aarch64-linux-user arm-linux-user riscv64-linux-user ppc64le-linux-user s390x-linux-user'
@@ -133,7 +142,7 @@ RUN set -eu; mkdir ./bin/; \
 	for f in ./qemu-x86_64 ./qemu-aarch64 ./qemu-arm ./qemu-riscv64 ./qemu-ppc64le ./qemu-s390x; do \
 		in=$(readlink -f "${f:?}"); \
 		out=./bin/"$(basename "${in:?}")"-static; \
-		"${CROSS_PREFIX?}"strip -s "${in:?}"; \
+		"${CROSS_PREFIX:-}"strip -s "${in:?}"; \
 		setcap cap_net_bind_service=+ep "${in:?}"; \
 		test -z "$(readelf -x .interp "${in:?}" 2>/dev/null)"; \
 		mv "${in:?}" "${out:?}"; file "${out:?}"; \
@@ -141,14 +150,23 @@ RUN set -eu; mkdir ./bin/; \
 # Ignore already registered entries
 RUN sed -ri 's;( > /proc/sys/fs/binfmt_misc/register)$;\1 ||:;' ./scripts/qemu-binfmt-conf.sh
 
+# Create rootfs
+WORKDIR /tmp/rootfs/
+RUN mkdir -p ./etc/ ./bin/ ./usr/bin/
+RUN printf 'root:x:0:0:root:/:/bin/sh\n' > ./etc/passwd
+RUN printf 'root:*:::::::\n' > ./etc/shadow
+RUN printf 'root:x:0:\n' > ./etc/group
+RUN install -Dm 755 /usr/bin/busybox ./bin/sh
+RUN install -Dm 755 /tmp/build/qemu/build/bin/* ./usr/bin/
+RUN install -Dm 755 /tmp/build/qemu/build/scripts/qemu-binfmt-conf.sh ./usr/bin/
+COPY --chown=root:root ./scripts/bin/ ./usr/bin/
+
 ##################################################
 ## "main" stage
 ##################################################
 
-FROM docker.io/busybox:latest AS main
+FROM scratch AS main
 
-COPY --from=build --chown=root:root /tmp/build/qemu/build/bin/* /usr/bin/
-COPY --from=build --chown=root:root /tmp/build/qemu/build/scripts/qemu-binfmt-conf.sh /usr/bin/
-COPY --chown=root:root ./scripts/bin/ /usr/bin/
+COPY --from=build /tmp/rootfs/ /
 
 ENTRYPOINT ["/usr/bin/qemu-binfmt-register.sh"]

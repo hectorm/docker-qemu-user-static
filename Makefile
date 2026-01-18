@@ -61,6 +61,7 @@ build-amd64-image:
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-amd64' \
 		--tag '$(IMAGE_NAME):latest-amd64' \
 		--platform linux/amd64 \
+		--build-arg DPKG_ARCH=amd64 \
 		--build-arg CROSS_PREFIX=x86_64-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=x86_64 \
 		--build-arg MESON_CPU=x86_64 \
@@ -72,6 +73,7 @@ build-arm64v8-image:
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-arm64v8' \
 		--tag '$(IMAGE_NAME):latest-arm64v8' \
 		--platform linux/arm64/v8 \
+		--build-arg DPKG_ARCH=arm64 \
 		--build-arg CROSS_PREFIX=aarch64-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=aarch64 \
 		--build-arg MESON_CPU=armv8 \
@@ -83,6 +85,7 @@ build-riscv64-image:
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-riscv64' \
 		--tag '$(IMAGE_NAME):latest-riscv64' \
 		--platform linux/riscv64 \
+		--build-arg DPKG_ARCH=riscv64 \
 		--build-arg CROSS_PREFIX=riscv64-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=riscv64 \
 		--build-arg MESON_CPU=riscv64 \
@@ -94,6 +97,7 @@ build-ppc64le-image:
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-ppc64le' \
 		--tag '$(IMAGE_NAME):latest-ppc64le' \
 		--platform linux/ppc64le \
+		--build-arg DPKG_ARCH=ppc64el \
 		--build-arg CROSS_PREFIX=powerpc64le-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=ppc64 \
 		--build-arg MESON_CPU=ppc64 \
@@ -105,6 +109,7 @@ build-s390x-image:
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-s390x' \
 		--tag '$(IMAGE_NAME):latest-s390x' \
 		--platform linux/s390x \
+		--build-arg DPKG_ARCH=s390x \
 		--build-arg CROSS_PREFIX=s390x-linux-gnu- \
 		--build-arg MESON_CPU_FAMILY=s390x \
 		--build-arg MESON_CPU=s390x \
