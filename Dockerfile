@@ -78,10 +78,10 @@ COPY <<-EOF ${SYSROOT}/cross.ini
 EOF
 
 # Build libffi
-ARG LIBFFI_TREEISH=e2eda0cf72a0598b44278cc91860ea402273fa29 # v3.5.2
+ARG LIBFFI_TREEISH=c5da24920ba07a30a9e45e9dba27d7917cafb57a # v3.8.0
 ARG LIBFFI_REMOTE=https://github.com/libffi/libffi.git
-ARG LIBFFI_WRAPDB_PATCH_URL=https://wrapdb.mesonbuild.com/v2/libffi_3.5.2-1/get_patch
-ARG LIBFFI_WRAPDB_PATCH_HASH=1ee3035d92e4df3541d0b2b8d192d2fa183b46e4a3d68c00d8f71ede354bee74
+ARG LIBFFI_WRAPDB_PATCH_URL=https://wrapdb.mesonbuild.com/v2/libffi_3.8.0-1/get_patch
+ARG LIBFFI_WRAPDB_PATCH_HASH=9674679806598d276ee49ecdf27f1b3eb62fbf4776723ef67f0e14f9200a6f6d
 WORKDIR ${BUILDDIR}/libffi/
 RUN git clone "${LIBFFI_REMOTE:?}" ./ \
 	&& git checkout "${LIBFFI_TREEISH:?}" \
