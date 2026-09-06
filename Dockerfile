@@ -128,14 +128,12 @@ RUN ninja -C ./build/ install
 RUN pkg-config --static --exists --print-errors glib-2.0
 
 # Build QEMU
-ARG QEMU_TREEISH=698104725efad4b29079d857dfdebbd804e34c99 # v10.2.0
+ARG QEMU_TREEISH=c3d48b7d1e89604920e5b81b91140c2ad39a1943 # v11.1.1
 ARG QEMU_REMOTE=https://gitlab.com/qemu-project/qemu.git
 WORKDIR ${BUILDDIR}/qemu/
 RUN git clone "${QEMU_REMOTE:?}" ./ \
 	&& git checkout "${QEMU_TREEISH:?}" \
 	&& git submodule update --init --recursive
-# Temporary revert to fix https://gitlab.com/qemu-project/qemu/-/issues/1913
-RUN git revert -n aec338d63bc28f1f13d5e64c561d7f1dd0e4b07e
 WORKDIR ${BUILDDIR}/qemu/build/
 RUN ../configure \
 		--static --cross-prefix="${CROSS_PREFIX:-}" \
